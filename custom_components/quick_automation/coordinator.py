@@ -33,10 +33,10 @@ _LEFT_RIGHT_ACTIONS = [
     (dict(domain="zha", type="remote_button_short_press", subtype="left"), dict(domain="zha", type="remote_button_short_press", subtype="right")),
 ]
 _TOGGLE_ACTIONS = [
-    dict(domain="mqtt", type="action", subtype="toggle"),
-    dict(domain="mqtt", type="action", subtype="single"),
-    dict(domain="zha", type="remote_button_short_press", subtype="remote_button_short_press"),
-    dict(domain="zha", type="remote_button_short_press", subtype="turn_on"),
+    (dict(domain="mqtt", type="action", subtype="toggle"), dict(domain="mqtt", type="action")),
+    (dict(domain="mqtt", type="action", subtype="single"), dict(domain="mqtt", type="action")),
+    (dict(domain="zha", type="remote_button_short_press", subtype="remote_button_short_press"), dict(domain="zha", type="remote_button_short_press")),
+    (dict(domain="zha", type="remote_button_short_press", subtype="turn_on"), dict(domain="zha", type="remote_button_short_press")),
 ]
 _ON_OFF_TRIGGERS = [("turned_on", "turned_off")]
 
@@ -234,12 +234,11 @@ class Component(EntityComponent):
                     if pair := binary_map.get(item):
                         result["on_off"] = pair
                         break
-            actions = self._device_triggers(t_list, type="action")
-            for selector in _TOGGLE_ACTIONS:
-                if t := self._device_trigger(t_list, **selector):
-                    result["toggle"] = dict(triggers=[t])
-            if "toggle" not in result:
-                if len(actions):
+            for pair in _TOGGLE_ACTIONS:
+                actions = self._device_triggers(t_list, **pair[1])
+                if t := self._device_trigger(t_list, **pair[0]):
+                    result["toggle"] = dict(triggers=[t], select=actions, key="subtype")
+                if "toggle" not in result and len(actions):
                     result["toggle"] = dict(triggers=[actions[0]], select=actions, key="subtype")
         elif entity_id := entry.get("entity_id"):
             [domain, name] = entity_id.split(".")
