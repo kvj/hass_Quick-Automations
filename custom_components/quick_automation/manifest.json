@@ -1,0 +1,12 @@
+{
+  "domain": "quick_automation",
+  "name": "Quick Automations",
+  "documentation": "https://github.com/kvj/hass_Quick-Automations",
+  "issue_tracker": "https://github.com/kvj/hass_Quick-Automations/issues",
+  "dependencies": [],
+  "codeowners": ["@kvj"],
+  "requirements": [],
+  "iot_class": "calculated",
+  "config_flow": true,
+  "version": "0.1.0"
+}

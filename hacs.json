@@ -1,0 +1,5 @@
+{
+    "name": "Quick Automations",
+    "domains": ["switch", "light", "binary_sensor"],
+    "render_readme": true
+}
