@@ -17,10 +17,27 @@ import copy
 import logging
 _LOGGER = logging.getLogger(__name__)
 
-_ON_OFF_ACTIONS = [("on", "off"), ("open", "close")]
-_BRIGHTNESS_ACTIONS = [("brightness_move_up", "brightness_move_down")]
-_LEFT_RIGHT_ACTIONS = [("arrow_left_click", "arrow_right_click")]
-_TOGGLE_ACTIONS = ["toggle", "single"]
+_ON_OFF_ACTIONS = [
+    (dict(domain="mqtt", type="action", subtype="on"), dict(domain="mqtt", type="action", subtype="off")),
+    (dict(domain="mqtt", type="action", subtype="open"), dict(domain="mqtt", type="action", subtype="close")),
+    (dict(domain="zha", type="remote_button_short_press", subtype="open"), dict(domain="zha", type="remote_button_short_press", subtype="close")),
+    (dict(domain="zha", type="remote_button_short_press", subtype="turn_on"), dict(domain="zha", type="remote_button_short_press", subtype="turn_off")),
+]
+_BRIGHTNESS_ACTIONS = [
+    (dict(domain="mqtt", type="action", subtype="brightness_move_up"), dict(domain="mqtt", type="action", subtype="brightness_move_down")),
+    (dict(domain="zha", type="remote_button_long_press", subtype="dim_up"), dict(domain="zha", type="remote_button_long_press", subtype="dim_down")),
+    (dict(domain="zha", type="remote_button_long_press", subtype="open"), dict(domain="zha", type="remote_button_long_press", subtype="close")),
+]
+_LEFT_RIGHT_ACTIONS = [
+    (dict(domain="mqtt", type="action", subtype="arrow_left_click"), dict(domain="mqtt", type="action", subtype="arrow_right_click")),
+    (dict(domain="zha", type="remote_button_short_press", subtype="left"), dict(domain="zha", type="remote_button_short_press", subtype="right")),
+]
+_TOGGLE_ACTIONS = [
+    dict(domain="mqtt", type="action", subtype="toggle"),
+    dict(domain="mqtt", type="action", subtype="single"),
+    dict(domain="zha", type="remote_button_short_press", subtype="remote_button_short_press"),
+    dict(domain="zha", type="remote_button_short_press", subtype="turn_on"),
+]
 _ON_OFF_TRIGGERS = [("turned_on", "turned_off")]
 
 _BINARY_SENSOR_TRIGGERS = ["co", "cold", "connected", "gas", "hot", "light", "locked", "moist", "motion", "moving", "occupied", "plugged_in", "present", "problem", "running", "unsafe", "smoke", "sound", "tampered", "vibration", "opened"]
@@ -206,11 +223,11 @@ class Component(EntityComponent):
             for pair in _ON_OFF_TRIGGERS:
                 _add_pair("on_off", {"type": pair[0]}, {"type": pair[1]})
             for pair in _ON_OFF_ACTIONS:
-                _add_pair("on_off", {"subtype": pair[0], "type": "action"}, {"subtype": pair[1], "type": "action"})
+                _add_pair("on_off", pair[0], pair[1])
             for pair in _BRIGHTNESS_ACTIONS:
-                _add_pair("brightness", {"subtype": pair[0], "type": "action"}, {"subtype": pair[1], "type": "action"})
+                _add_pair("brightness", pair[0], pair[1])
             for pair in _LEFT_RIGHT_ACTIONS:
-                _add_pair("left_right", {"subtype": pair[0], "type": "action"}, {"subtype": pair[1], "type": "action"})
+                _add_pair("left_right", pair[0], pair[1])
             binary_map = self._map_binary_sensor(t_list)
             if "on_off" not in result:
                 for item in _BINARY_SENSOR_TRIGGERS:

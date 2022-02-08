@@ -29,7 +29,7 @@ async def async_unload_entry(hass, entry):
 
 async def async_setup(hass, config) -> bool:
     hass.data[DOMAIN] = dict(entries={}, component=Component(hass))
-    _LOGGER.debug(f"__init__::async_setup: {config}, {locate_dir}")
+    _LOGGER.debug(f"__init__::async_setup: {locate_dir}")
     hass.http.register_static_path(
         "/quick_automation_ui", "%s/dist" % (locate_dir()), cache_headers=False)
     await async_register_panel(
