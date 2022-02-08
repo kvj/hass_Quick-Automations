@@ -235,9 +235,9 @@ class Component(EntityComponent):
                         result["on_off"] = pair
                         break
             actions = self._device_triggers(t_list, type="action")
-            for pair in _TOGGLE_ACTIONS:
-                if t := self._device_trigger(t_list, type="action", subtype=pair):
-                    result["toggle"] = dict(triggers=[t], select=actions, key="subtype")
+            for selector in _TOGGLE_ACTIONS:
+                if t := self._device_trigger(t_list, **selector):
+                    result["toggle"] = dict(triggers=[t])
             if "toggle" not in result:
                 if len(actions):
                     result["toggle"] = dict(triggers=[actions[0]], select=actions, key="subtype")
