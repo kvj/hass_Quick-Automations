@@ -149,7 +149,7 @@ class Component(EntityComponent):
                 t2 = self._device_trigger(a_list, **kwargs2)
                 if t1 and t2:
                     result[name] = dict(actions=[t1, t2])
-            # _LOGGER.debug("Actions: [%s] = %s", device_id, a_list)
+            _LOGGER.debug("Actions: [%s] = %s", device_id, a_list)
             if toggle := self._device_trigger(a_list, type="toggle"):
                 result["toggle"] = dict(actions=[toggle])
             elif press := self._device_trigger(a_list, type="press"):
@@ -202,7 +202,7 @@ class Component(EntityComponent):
                 if t1 and t2:
                     result[name] = dict(triggers=[t1, t2])
 
-            # _LOGGER.debug("Triggers: %s = %s", device_id, t_list)
+            _LOGGER.debug("Triggers: [%s] = %s", device_id, t_list)
             for pair in _ON_OFF_TRIGGERS:
                 _add_pair("on_off", {"type": pair[0]}, {"type": pair[1]})
             for pair in _ON_OFF_ACTIONS:
@@ -268,7 +268,9 @@ class Component(EntityComponent):
         triggers = await self.load_triggers(data.get("source", {}))
         actions = await self.load_actions(data.get("destination", {}))
         binding = await self.bind_trigger_actions(triggers, actions)
-        _LOGGER.debug("Binding: %s, %s", data, binding)
+        _LOGGER.debug("Binding - triggers: %s, %s", data, triggers)
+        _LOGGER.debug("Binding - actions: %s, %s", data, actions)
+        _LOGGER.debug("Binding - result: %s, %s", data, binding)
         return binding
 
     async def call_action(self, action, extra, type=None):
