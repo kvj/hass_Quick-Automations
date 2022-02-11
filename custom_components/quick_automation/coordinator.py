@@ -185,7 +185,7 @@ class Component(EntityComponent):
                 result["toggle"] = dict(actions=[press])
             _add_pair("on_off", {"type": "turn_on"}, {"type": "turn_off"})
             _add_pair("on_off", {"type": "open"}, {"type": "close"})
-            if action := self._device_trigger(actions, type="set_position", domain="cover"):
+            if action := self._device_trigger(a_list, type="set_position", domain="cover"):
                 if "on_off" not in result:
                     result["on_off"] = dict(actions=[{**action, "position": 0}, {**action, "position": 100}])
             _add_pair("brightness", {"type": "brightness_increase"}, {"type": "brightness_decrease"})
