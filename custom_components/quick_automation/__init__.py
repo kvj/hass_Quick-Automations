@@ -46,6 +46,7 @@ async def async_setup(hass, config) -> bool:
     hass.components.websocket_api.async_register_command(ws_update_entry)
     hass.components.websocket_api.async_register_command(ws_list_entries)
     hass.components.websocket_api.async_register_command(ws_remove_entry)
+    hass.components.websocket_api.async_register_command(ws_toggle_enabled)
     return True
 
 _ITEM_SCHEMA = vol.Schema({
@@ -117,6 +118,18 @@ async def ws_remove_entry(hass, connection, msg: dict):
     _LOGGER.debug("ws_remove_entry: %s", msg)
     component = get_component(hass)
     await component.delete_entry(msg["entry_id"])
+    connection.send_result(msg["id"], {})
+
+@websocket_api.websocket_command({
+    vol.Required("type"): "quick_automation/toggle_enabled",
+    vol.Required("entry_id"): str,
+    vol.Required("enabled"): bool,
+})
+@websocket_api.async_response
+async def ws_toggle_enabled(hass, connection, msg: dict):
+    _LOGGER.debug("ws_toggle_enabled: %s", msg)
+    component = get_component(hass)
+    await component.toggle_enabled(msg["entry_id"], msg["enabled"])
     connection.send_result(msg["id"], {})
 
 @websocket_api.websocket_command({

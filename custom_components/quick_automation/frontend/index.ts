@@ -34,10 +34,25 @@ export class QuickAutomationPanel extends LitElement {
             entry_id: {
                 hidden: true,
             },
+            enabled: {
+                title: "",
+                type: "icon",
+                template: (enabled: boolean, row: EntryRecord) => {
+                    const _handleChange = (event: any) => {
+                        this._toggle(row);
+                    };
+                    return html`
+                    <ha-switch
+                        .checked=${enabled}
+                        @change=${_handleChange}
+                    ></ha-switch>            
+                    `;
+                }
+            },
             icon: {
                 title: "",
                 type: "icon",
-                template: (icon: string) => html` <ha-icon slot="item-icon" icon="mdi:link-variant"></ha-icon> `,
+                template: (icon: string) => html`<ha-icon slot="item-icon" icon="mdi:link-variant"></ha-icon>`,
             },
             title: {
                 title: "Name",
@@ -65,13 +80,30 @@ export class QuickAutomationPanel extends LitElement {
                 }
             };
         }
-        columns["remove"] = {
-            title: "Remove",
+        columns["edit"] = {
+            title: "",
             filterable: false,
             grows: false,
             template: (value: string, row: EntryRecord) => {
                 const _action = () => {
-                    this._remove(row.entry_id)
+                    this._edit(row)
+                };
+                return html`
+                    <mwc-button
+                        @click=${_action}
+                    >
+                        Edit
+                    </mwc-button>
+                `;
+            }
+        };
+        columns["remove"] = {
+            title: "",
+            filterable: false,
+            grows: false,
+            template: (value: string, row: EntryRecord) => {
+                const _action = () => {
+                    this._remove(row)
                 };
                 return html`
                     <mwc-button
@@ -85,10 +117,19 @@ export class QuickAutomationPanel extends LitElement {
         return columns;
     }
 
-    async _remove(id: string) {
+    async _remove(row: EntryRecord) {
         await this.hass.connection.sendMessagePromise({
             type: 'quick_automation/remove_entry',
-            entry_id: id,
+            entry_id: row.entry_id,
+        });
+        this._load();
+    }
+
+    async _toggle(row: EntryRecord) {
+        await this.hass.connection.sendMessagePromise({
+            type: 'quick_automation/toggle_enabled',
+            entry_id: row.entry_id,
+            enabled: !row.enabled,
         });
         this._load();
     }
@@ -109,12 +150,10 @@ export class QuickAutomationPanel extends LitElement {
         return [];
     }
 
-    _edit(event: any) {
-        const id = event.detail.id;
-        const item = this._items.find((item: any) => item['entry_id'] == id) as EntryRecord | undefined;
-        console.log("_edit:", item);
-        if (item) {
-            this._editor = item;
+    _edit(row: EntryRecord) {
+        console.log("_edit:", row);
+        if (row) {
+            this._editor = row;
         }
     }
 
@@ -156,10 +195,8 @@ export class QuickAutomationPanel extends LitElement {
             .tabs=${tabs}
             .columns=${this._columns(this.narrow)}
             .data=${this._getItems()}
-            @row-click=${this._edit}
             id="entry_id"
             hasFab
-            clickable
         >
             <ha-fab
                 slot="fab"
@@ -448,11 +485,14 @@ export class SuperGroupsEditor extends LitElement {
             >
             </paper-input>
         `;
+        const header = html`
+            <span class="header_title">Entry Editor</span>
+        `;
         return html`
         <ha-dialog 
             scrimClickAction
             escapeKeyAction
-            heading="Entry Editor"
+            .heading=${header}
             open
         >
             <div>
@@ -504,6 +544,11 @@ export class SuperGroupsEditor extends LitElement {
 
     static get styles() {
         return css`
+            ha-dialog {
+                --mdc-dialog-heading-ink-color: var(--primary-text-color);
+                --mdc-dialog-content-ink-color: var(--primary-text-color);
+                --justify-action-buttons: space-between;
+            }                    
             p {
                 font-size: 1.3rem;
                 margin: 1em 0;

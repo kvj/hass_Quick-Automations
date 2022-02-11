@@ -122,6 +122,18 @@ class Component(EntityComponent):
                 return True
         return False
 
+    async def toggle_enabled(self, entry_id: str, enabled: bool):
+        entry_list = self.entry_list()
+        for idx, item in enumerate(entry_list):
+            if item["id"] == entry_id:
+                entry_list[idx] = {
+                    **item,
+                    "enabled": enabled,
+                }
+                await self.reload(dict(entries=entry_list))
+                return True
+        return False
+
     async def reload(self, data):
         self.hass.config_entries.async_update_entry(self._config_entry, data=data)
         for entity in list(self.entities):
@@ -172,6 +184,10 @@ class Component(EntityComponent):
             elif press := self._device_trigger(a_list, type="press"):
                 result["toggle"] = dict(actions=[press])
             _add_pair("on_off", {"type": "turn_on"}, {"type": "turn_off"})
+            _add_pair("on_off", {"type": "open"}, {"type": "close"})
+            if action := self._device_trigger(actions, type="set_position", domain="cover"):
+                if "on_off" not in result:
+                    result["on_off"] = dict(actions=[{**action, "position": 0}, {**action, "position": 100}])
             _add_pair("brightness", {"type": "brightness_increase"}, {"type": "brightness_decrease"})
         elif entity_id := entry.get("entity_id"):
             [domain, name] = entity_id.split(".")
