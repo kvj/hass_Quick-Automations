@@ -187,7 +187,7 @@ class Component(EntityComponent):
             _add_pair("on_off", {"type": "open"}, {"type": "close"})
             if action := self._device_trigger(a_list, type="set_position", domain="cover"):
                 if "on_off" not in result:
-                    result["on_off"] = dict(actions=[{**action, "position": 0}, {**action, "position": 100}])
+                    result["on_off"] = dict(actions=[{**action, "position": 100}, {**action, "position": 0}])
             _add_pair("brightness", {"type": "brightness_increase"}, {"type": "brightness_decrease"})
         elif entity_id := entry.get("entity_id"):
             [domain, name] = entity_id.split(".")
