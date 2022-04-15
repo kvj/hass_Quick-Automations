@@ -171,7 +171,7 @@ class Component(EntityComponent):
         entity_reg = await entity_registry.async_get_registry(self.hass)
         result = dict()
         if device_id := entry.get("device_id"):
-            actions = await device_automation.async_get_device_automations(self.hass, "action", [device_id])
+            actions = await device_automation.async_get_device_automations(self.hass, device_automation.DeviceAutomationType.ACTION, [device_id])
             a_list = actions.get(device_id)
             def _add_pair(name, kwargs1, kwargs2):
                 t1 = self._device_trigger(a_list, **kwargs1)
@@ -226,7 +226,7 @@ class Component(EntityComponent):
         # device_reg = device_registry.async_get(self.hass)
         result = dict()
         if device_id := entry.get("device_id"):
-            triggers = await device_automation.async_get_device_automations(self.hass, "trigger", [device_id])
+            triggers = await device_automation.async_get_device_automations(self.hass, device_automation.DeviceAutomationType.TRIGGER, [device_id])
             t_list = triggers.get(device_id, [])
 
             def _add_pair(name, kwargs1, kwargs2):
@@ -310,7 +310,7 @@ class Component(EntityComponent):
             platform = await device_automation.async_get_device_automation_platform(
                 self.hass, 
                 action["domain"], 
-                "action"
+                device_automation.DeviceAutomationType.ACTION,
             )
             data = {
                 **action,
